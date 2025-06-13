@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 <head>
   <meta charset="utf-8">
   <!-- Meta tags for social media banners, these should be filled in appropriatly as they are your "business card" -->
@@ -121,6 +122,18 @@
     </div>
   </div>
 </section>
+
+<!-- Interactive 2D graph -->
+<section class="hero">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <div id="plot" style="width:100%; height:600px;"></div>
+    </div>
+  </div>
+</section>
+
+<!-- For debug purpose -->
+<div id="point-info" class="content" style="margin-top: 1rem; font-size: 0.95rem;"></div>
 
 
 <!-- Teaser video-->
