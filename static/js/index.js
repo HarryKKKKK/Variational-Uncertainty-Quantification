@@ -47,6 +47,48 @@ $(document).ready(function () {
 
   const config = { displayModeBar: false };
 
+  // === Drag balls ===
+  document.querySelectorAll('.draggable-ball').forEach(ball => {
+    ball.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('color', ball.dataset.color);
+    });
+  });
+
+  const plotDiv = document.getElementById('plot');
+
+  plotDiv.addEventListener('dragover', e => {
+    e.preventDefault();
+  });
+
+  plotDiv.addEventListener('drop', e => {
+    e.preventDefault();
+
+    const color = e.dataTransfer.getData('color');
+    const [xPix, yPix] = [e.offsetX, e.offsetY];
+
+    const xaxis = plotDiv._fullLayout.xaxis;
+    const yaxis = plotDiv._fullLayout.yaxis;
+
+    const xVal = xaxis.p2c.invert(xPix - xaxis._offset);
+    const yVal = yaxis.p2c.invert(yPix - yaxis._offset);
+
+    // 添加点
+    trace1.x = trace1.x.concat(xVal);
+    trace1.y = trace1.y.concat(yVal);
+    trace1.marker.color = trace1.marker.color.concat(color);
+
+    Plotly.react('plot', [heatmap, trace1], layout, config);
+
+    // 更新信息
+    const infoDiv = document.getElementById('point-info');
+    let infoHTML = '<strong>Added dots:</strong><ul>';
+    for (let i = 0; i < trace1.x.length; i++) {
+      infoHTML += `<li>Point ${i + 1}: (${trace1.x[i].toFixed(2)}, ${trace1.y[i].toFixed(2)}), ${trace1.marker.color[i]}</li>`;
+    }
+    infoHTML += '</ul>';
+    infoDiv.innerHTML = infoHTML;
+  });
+
   // === Init plot ===
   Plotly.newPlot('plot', [heatmap, trace1], layout, config).then(function (gd) {
     gd.on('plotly_click', function (data) {
