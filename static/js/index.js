@@ -1,7 +1,7 @@
 window.HELP_IMPROVE_VIDEOJS = false;
 
 $(document).ready(function () {
-  // For photo display
+  // === Bulma Carousel ===
   var options = {
     slidesToScroll: 1,
     slidesToShow: 1,
@@ -10,17 +10,17 @@ $(document).ready(function () {
     autoplay: true,
     autoplaySpeed: 5000,
   };
-
-  var carousels = bulmaCarousel.attach('.carousel', options);
+  bulmaCarousel.attach('.carousel', options);
   bulmaSlider.attach();
 
-  // Plotly behavior
+  // === Plotly data & layout ===
   const trace1 = {
     x: [],
     y: [],
     mode: 'markers',
     marker: { color: [], size: 10 },
-    type: 'scatter'
+    type: 'scatter',
+    hoverinfo: 'none'
   };
 
   const heatmap = {
@@ -35,53 +35,55 @@ $(document).ready(function () {
     y: [-2, -1, 0, 1, 2],
     type: 'heatmap',
     colorscale: 'Blues',
-    opacity: 0.6
+    opacity: 0.6,
+    hoverinfo: 'none'
   };
 
-  Plotly.newPlot('plot', [heatmap, trace1], {
+  const layout = {
     margin: { t: 0 },
-    xaxis: { range: [-2, 2] },
-    yaxis: { range: [-2, 2] }
-  }, {
-    displayModeBar: false 
+    xaxis: { range: [-2, 2], fixedrange: true },
+    yaxis: { range: [-2, 2], fixedrange: true }
+  };
+
+  const config = { displayModeBar: false };
+
+  // === Init plot ===
+  Plotly.newPlot('plot', [heatmap, trace1], layout, config).then(function (gd) {
+    gd.on('plotly_click', function (data) {
+      const x = data.points[0].x;
+      const y = data.points[0].y;
+
+      const alreadyExists = trace1.x.some((xi, i) =>
+        Math.abs(xi - x) < 1e-6 && Math.abs(trace1.y[i] - y) < 1e-6
+      );
+      if (alreadyExists) {
+        alert('This dot has been added already');
+        return;
+      }
+
+      const color = prompt('Enter color: red or blue');
+      if (!color || !['red', 'blue'].includes(color.toLowerCase())) return;
+
+      const newX = trace1.x.concat(x);
+      const newY = trace1.y.concat(y);
+      const newColor = trace1.marker.color.concat(color);
+
+      trace1.x = newX;
+      trace1.y = newY;
+      trace1.marker.color = newColor;
+
+
+      Plotly.react('plot', [heatmap, trace1], layout, config).then(function (gdNew) {
+        gdNew.on('plotly_click', arguments.callee);
+      });
+
+      const infoDiv = document.getElementById('point-info');
+      let infoHTML = '<strong>Added dots:</strong><ul>';
+      for (let i = 0; i < trace1.x.length; i++) {
+        infoHTML += `<li>Point ${i + 1}: (${trace1.x[i].toFixed(2)}, ${trace1.y[i].toFixed(2)}), ${trace1.marker.color[i]}</li>`;
+      }
+      infoHTML += '</ul>';
+      infoDiv.innerHTML = infoHTML;
+    });
   });
-
-  const plotDiv = document.getElementById('plot');
-  plotDiv.on('plotly_click', function (data) {
-  const x = data.points[0].x;
-  const y = data.points[0].y;
-
-  // Reduce Repeated ones
-  const alreadyExists = trace1.x.some((xi, i) => {
-    return Math.abs(xi - x) < 1e-6 && Math.abs(trace1.y[i] - y) < 1e-6;
-  });
-
-  if (alreadyExists) {
-    alert('This dot has been added already');
-    return;
-  }
-
-  const color = prompt('Enter color: red or blue）');
-  if (!color) return;
-
-  const newX = trace1.x.concat(x);
-  const newY = trace1.y.concat(y);
-  const newColor = trace1.marker.color.concat(color);
-
-  trace1.x = newX;
-  trace1.y = newY;
-  trace1.marker.color = newColor;
-
-  Plotly.react('plot', [heatmap, trace1]);
-
-  const infoDiv = document.getElementById('point-info');
-  let infoHTML = '<strong>Added dots:</strong><ul>';
-  for (let i = 0; i < newX.length; i++) {
-    infoHTML += `<li>Point ${i + 1}: (${newX[i].toFixed(2)}, ${newY[i].toFixed(2)}), ${newColor[i]}</li>`;
-  }
-  infoHTML += '</ul>';
-  infoDiv.innerHTML = infoHTML;
 });
-});
-
-
