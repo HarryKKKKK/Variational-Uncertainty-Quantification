@@ -41,11 +41,20 @@ $(document).ready(function () {
 
   const layout = {
     margin: { t: 0 },
-    xaxis: { range: [-2, 2], fixedrange: true },
-    yaxis: { range: [-2, 2], fixedrange: true }
+    xaxis: { range: [-4, 4], fixedrange: true },
+    yaxis: { range: [-4, 4], fixedrange: true }
   };
 
   const config = { displayModeBar: false };
+
+  // === Helper Functions ===
+  function roundToHalf(num) {
+    return Math.round(num * 2) / 2;
+  }
+
+  function isPointExists(x, y) {
+    return trace1.x.some((xi, i) => Math.abs(xi - x) < 1e-6 && Math.abs(trace1.y[i] - y) < 1e-6);
+  }
 
   // === Drag balls ===
   document.querySelectorAll('.draggable-ball').forEach(ball => {
@@ -57,10 +66,12 @@ $(document).ready(function () {
   const plotDiv = document.getElementById('plot');
 
   plotDiv.addEventListener('dragover', e => {
+    console.log('Drag over event triggered');
     e.preventDefault();
   });
 
   plotDiv.addEventListener('drop', e => {
+    console.log('Drop event triggered');
     e.preventDefault();
 
     const color = e.dataTransfer.getData('color');
@@ -69,17 +80,21 @@ $(document).ready(function () {
     const xaxis = plotDiv._fullLayout.xaxis;
     const yaxis = plotDiv._fullLayout.yaxis;
 
-    const xVal = xaxis.p2c.invert(xPix - xaxis._offset);
-    const yVal = yaxis.p2c.invert(yPix - yaxis._offset);
+    const xVal = roundToHalf(xaxis.p2c(xPix - xaxis._offset));
+    const yVal = roundToHalf(yaxis.p2c(yPix - yaxis._offset));
+    
+    if (isPointExists(xVal, yVal)) {
+      alert('This dot has been added already');
+      return;
+    }
 
-    // 添加点
+    // add points
     trace1.x = trace1.x.concat(xVal);
     trace1.y = trace1.y.concat(yVal);
     trace1.marker.color = trace1.marker.color.concat(color);
-
     Plotly.react('plot', [heatmap, trace1], layout, config);
 
-    // 更新信息
+    // update point info
     const infoDiv = document.getElementById('point-info');
     let infoHTML = '<strong>Added dots:</strong><ul>';
     for (let i = 0; i < trace1.x.length; i++) {
@@ -89,16 +104,16 @@ $(document).ready(function () {
     infoDiv.innerHTML = infoHTML;
   });
 
-  // === Init plot ===
+  // === Init plot + Click add points ===
   Plotly.newPlot('plot', [heatmap, trace1], layout, config).then(function (gd) {
-    gd.on('plotly_click', function (data) {
-      const x = data.points[0].x;
-      const y = data.points[0].y;
+    const xaxis = gd._fullLayout.xaxis;
+    const yaxis = gd._fullLayout.yaxis;
 
-      const alreadyExists = trace1.x.some((xi, i) =>
-        Math.abs(xi - x) < 1e-6 && Math.abs(trace1.y[i] - y) < 1e-6
-      );
-      if (alreadyExists) {
+    gd.on('plotly_click', function (data) {
+      const x = roundToHalf(data.points[0].x);
+      const y = roundToHalf(data.points[0].y);
+
+      if (isPointExists(x, y)) {
         alert('This dot has been added already');
         return;
       }
@@ -113,7 +128,6 @@ $(document).ready(function () {
       trace1.x = newX;
       trace1.y = newY;
       trace1.marker.color = newColor;
-
 
       Plotly.react('plot', [heatmap, trace1], layout, config).then(function (gdNew) {
         gdNew.on('plotly_click', arguments.callee);
