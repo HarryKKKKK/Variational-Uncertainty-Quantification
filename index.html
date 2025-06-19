@@ -124,20 +124,25 @@
 </section>
 
 <!-- Interactive 2D graph -->
-<section class="hero">
+<section class="hero" style="margin-bottom: 0; padding-bottom: 0;">
   <div class="container is-max-desktop">
-    <div class="hero-body">
+    <div class="hero-body" style="margin-bottom: 0; margin-top: 0; padding-top: 0; padding-bottom: 0;">
       <div id="plot" style="width:100%; height:600px;"></div>
     </div>
   </div>
 </section>
 
 <!-- Draggable balls -->
-<div id="color-picker" style="display: flex; gap: 20px; margin-bottom: 1rem;">
-  <div class="draggable-ball" draggable="true" data-color="red" style="background-color: red;"></div>
-  <div class="draggable-ball" draggable="true" data-color="blue" style="background-color: blue;"></div>
+<div id="color-picker" style="display: flex; justify-content: center; gap: 30px; margin: 0.5rem 0;">
+  <div style="display: flex; align-items: center; gap: 8px;">
+    <div class="draggable-ball" draggable="true" data-color="red" style="background-color: red; width: 16px; height: 16px; border-radius: 50%;"></div>
+    <span style="font-size: 14px;">class 0</span>
+  </div>
+  <div style="display: flex; align-items: center; gap: 8px;">
+    <div class="draggable-ball" draggable="true" data-color="blue" style="background-color: blue; width: 16px; height: 16px; border-radius: 50%;"></div>
+    <span style="font-size: 14px;">class 1</span>
+  </div>
 </div>
-
 
 <!-- For debug purpose -->
 <div id="point-info" class="content" style="margin-top: 1rem; font-size: 0.95rem;"></div>
