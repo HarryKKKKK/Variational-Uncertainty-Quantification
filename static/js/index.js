@@ -14,10 +14,10 @@ $(document).ready(function () {
   bulmaSlider.attach();
 
   // === Plotly axis and heatmap preparation ===
-  const xmin = -4;
-  const xmax = 4;
-  const ymin = -4;
-  const ymax = 4;
+  const xmin = -4.5;
+  const xmax = 4.5;
+  const ymin = -4.5;
+  const ymax = 4.5;
   const step = 0.5;
 
   const x = [];
@@ -170,42 +170,33 @@ $(document).ready(function () {
     const xVal = roundToHalf(xaxis.p2c(xPix - xaxis._offset));
     const yVal = roundToHalf(yaxis.p2c(yPix - yaxis._offset));
 
-    if (isPointExists(xVal, yVal)) {
-      alert('This dot has been added already');
+    if (isPointExists(xVal, yVal) || xVal <= xmin || xVal >= xmax || yVal <= ymin || yVal >= ymax) {
       return;
     }
 
-    // 添加点，确保为每个点设置大小
+    // add point
     trace1.x.push(xVal);
     trace1.y.push(yVal);
     trace1.marker.color.push(color);
-    trace1.marker.size.push(12);  // 为新点设置大小
+    trace1.marker.size.push(12);
 
-    // 更新图表
     updatePlot();
   });
 
-  // === 点击已有点进行删除 ===
+  // === Click to delete existing point ===
   Plotly.newPlot('plot', [heatmap, trace1], layout, config).then(plot => {
-    // 点击事件监听
     plot.on('plotly_click', function (data) {
       if (!data.points || data.points.length === 0) return;
 
-      // 获取点击的坐标
+      // obtain coord and closest point
       const xPix = data.event.offsetX;
       const yPix = data.event.offsetY;
 
       const xaxis = plotDiv._fullLayout.xaxis;
       const yaxis = plotDiv._fullLayout.yaxis;
-
-      // 计算精确的点击坐标
       const clickX = xaxis.p2c(xPix - xaxis._offset);
       const clickY = yaxis.p2c(yPix - yaxis._offset);
 
-      console.log(clickX, clickY)
-
-
-      // 查找最近的点及其距离
       let minDistance = Infinity;
       let closestPointIndex = -1;
 
@@ -219,6 +210,7 @@ $(document).ready(function () {
         }
       });
 
+      // point deletion
       const threshold = 0.15
       if (closestPointIndex !== -1 && minDistance <= threshold) {
 
@@ -227,22 +219,18 @@ $(document).ready(function () {
         newMarker.size[closestPointIndex] = 16;
         Plotly.restyle(plotDiv, 'marker', [newMarker]);
 
-        // 延迟执行删除
         setTimeout(() => {
-          // 删除点
           trace1.x.splice(closestPointIndex, 1);
           trace1.y.splice(closestPointIndex, 1);
           trace1.marker.color.splice(closestPointIndex, 1);
           trace1.marker.size.splice(closestPointIndex, 1);
 
-          // 更新图表
           updatePlot();
         }, 200);
       }
     });
   });
 
-  // === 重置按钮功能 ===
   document.getElementById('reset-btn').addEventListener('click', function () {
     trace1.x = [];
     trace1.y = [];
@@ -252,14 +240,12 @@ $(document).ready(function () {
     updatePlot();
   });
 
-  // === 热图强度调整 ===
   document.getElementById('heatmap-intensity').addEventListener('input', function (e) {
     const intensity = parseFloat(e.target.value);
     heatmap.opacity = intensity;
-    Plotly.restyle(plotDiv, 'opacity', intensity, 0);  // 0 是 heatmap 的索引
+    Plotly.restyle(plotDiv, 'opacity', intensity, 0); 
   });
 
-  // === 缩放重置按钮 ===
   document.getElementById('zoom-reset').addEventListener('click', function () {
     Plotly.relayout(plotDiv, {
       'xaxis.range': [xmin, xmax],
@@ -267,7 +253,6 @@ $(document).ready(function () {
     });
   });
 
-  // === 保存图表按钮 ===
   document.getElementById('save-plot').addEventListener('click', function () {
     Plotly.downloadImage(plotDiv, { format: 'png', width: 1200, height: 800 });
   });
