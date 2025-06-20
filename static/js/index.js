@@ -155,11 +155,9 @@ $(document).ready(function () {
     }
 
     Plotly.deleteTraces('plot', 1);
-    console.log('heatmap 1: ', heatmapData.total)
     Plotly.addTraces('plot', trace1);
 
     updatePointInfo();
-    console.log('heatmap 2: ', heatmapData.total)
     sendPointsToBackend()
   }
 
@@ -212,7 +210,6 @@ $(document).ready(function () {
   });
 
   // === Click to delete existing point ===
-  console.log('Init heatmap: ', heatmapData.total)
   Plotly.newPlot('plot', [heatmapData.total, trace1], layout, config).then(plot => {
     plot.on('plotly_click', function (data) {
       if (!data.points || data.points.length === 0) return;
@@ -318,7 +315,7 @@ $(document).ready(function () {
       heatmapData.total.z = result.total;
       heatmapData.total.x = result.x_range;
       heatmapData.total.y = result.y_range;
-      
+
       heatmapData.aleatoric.z = result.aleatoric;
       heatmapData.aleatoric.x = result.x_range;
       heatmapData.aleatoric.y = result.y_range;
@@ -336,14 +333,19 @@ $(document).ready(function () {
   }
 
   function renderHeatmap(type) {
-    console.log('redering heatmap to:', type);
     if (!heatmapData[type]) return;
-
-    // Plotly.update('plot', heatmapData[type], [0]);
-    Plotly.deleteTraces('plot', 0); 
-    Plotly.addTraces('plot', heatmapData[type]);
-
+    // both heatmap and points are refreshed to avoid losing point when just alter uncertainty
+    // it seems points are refreshed twice but this makes the animation better
+    Plotly.newPlot('plot', [heatmapData[type], trace1], layout, config)
     heatmapData.currentType = type;
   }
+
+  // === Select to alter uncertainty type ===
+  const heatmapTypeSelect = document.getElementById('heatmap-type-select');
+  heatmapTypeSelect.addEventListener('change', function () {
+    const selectedType = this.value;
+    currentHeatmapType = selectedType;
+    renderHeatmap(selectedType);
+  });
 
 });

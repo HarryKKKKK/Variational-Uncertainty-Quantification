@@ -24,9 +24,9 @@ def process_data(df):
     epistemic = np.zeros((len(y_range), len(x_range)))
     for i, y in enumerate(y_range):
         for j, x in enumerate(x_range):
-            total[i, j] = point_count  # total
-            aleatoric[i, j] = point_count  # aleatoric
-            epistemic[i, j] = point_count  # epistemic
+            total[i, j] = point_count * 3 # total
+            aleatoric[i, j] = point_count * 2 # aleatoric
+            epistemic[i, j] = point_count   # epistemic
     
     return {
         'x_range': list(x_range),
