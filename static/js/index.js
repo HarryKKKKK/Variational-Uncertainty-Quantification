@@ -33,7 +33,7 @@ $(document).ready(function () {
   for (let i = 0; i < y.length; i++) {
     const row = [];
     for (let j = 0; j < x.length; j++) {
-      row.push(0);
+      row.push(0.5);
     }
     z.push(row);
   }
@@ -60,17 +60,42 @@ $(document).ready(function () {
     [1, 'rgba(8,81,156,1)']
   ];
 
-  const heatmap = {
-    z: z,
-    x: x,
-    y: y,
-    type: 'heatmap',
-    colorscale: customColorscale,
-    zmin: 0,
-    zmax: 1,
-    opacity: 0.6,
-    hoverinfo: 'none'
+  let heatmapData = {
+    total: {
+      z: JSON.parse(JSON.stringify(z)),
+      x: x,
+      y: y,
+      type: 'heatmap',
+      colorscale: customColorscale,
+      zmin: 0,
+      zmax: 1,
+      opacity: 0.6,
+      hoverinfo: 'none'
+    },
+    aleatoric: {
+      z: JSON.parse(JSON.stringify(z)),
+      x: x,
+      y: y,
+      type: 'heatmap',
+      colorscale: customColorscale,
+      zmin: 0,
+      zmax: 1,
+      opacity: 0.6,
+      hoverinfo: 'none'
+    },
+    epistemic: {
+      z: JSON.parse(JSON.stringify(z)),
+      x: x,
+      y: y,
+      type: 'heatmap',
+      colorscale: customColorscale,
+      zmin: 0,
+      zmax: 1,
+      opacity: 0.6,
+      hoverinfo: 'none'
+    }
   };
+  let currentHeatmapType = 'total'
 
   // === Plotly axis and layout setup ===
   const allTickValsX = [];
@@ -130,9 +155,12 @@ $(document).ready(function () {
     }
 
     Plotly.deleteTraces('plot', 1);
+    console.log('heatmap 1: ', heatmapData.total)
     Plotly.addTraces('plot', trace1);
 
     updatePointInfo();
+    console.log('heatmap 2: ', heatmapData.total)
+    sendPointsToBackend()
   }
 
   function updatePointInfo() {
@@ -184,7 +212,8 @@ $(document).ready(function () {
   });
 
   // === Click to delete existing point ===
-  Plotly.newPlot('plot', [heatmap, trace1], layout, config).then(plot => {
+  console.log('Init heatmap: ', heatmapData.total)
+  Plotly.newPlot('plot', [heatmapData.total, trace1], layout, config).then(plot => {
     plot.on('plotly_click', function (data) {
       if (!data.points || data.points.length === 0) return;
 
@@ -231,29 +260,90 @@ $(document).ready(function () {
     });
   });
 
-  document.getElementById('reset-btn').addEventListener('click', function () {
-    trace1.x = [];
-    trace1.y = [];
-    trace1.marker.color = [];
-    trace1.marker.size = [];
+  // TODO: Other functions
+  // document.getElementById('reset-btn').addEventListener('click', function () {
+  //   trace1.x = [];
+  //   trace1.y = [];
+  //   trace1.marker.color = [];
+  //   trace1.marker.size = [];
 
-    updatePlot();
-  });
+  //   updatePlot();
+  // });
 
-  document.getElementById('heatmap-intensity').addEventListener('input', function (e) {
-    const intensity = parseFloat(e.target.value);
-    heatmap.opacity = intensity;
-    Plotly.restyle(plotDiv, 'opacity', intensity, 0); 
-  });
+  // document.getElementById('heatmap-intensity').addEventListener('input', function (e) {
+  //   const intensity = parseFloat(e.target.value);
+  //   heatmap.opacity = intensity;
+  //   Plotly.restyle(plotDiv, 'opacity', intensity, 0); 
+  // });
 
-  document.getElementById('zoom-reset').addEventListener('click', function () {
-    Plotly.relayout(plotDiv, {
-      'xaxis.range': [xmin, xmax],
-      'yaxis.range': [ymin, ymax]
-    });
-  });
+  // document.getElementById('zoom-reset').addEventListener('click', function () {
+  //   Plotly.relayout(plotDiv, {
+  //     'xaxis.range': [xmin, xmax],
+  //     'yaxis.range': [ymin, ymax]
+  //   });
+  // });
 
-  document.getElementById('save-plot').addEventListener('click', function () {
-    Plotly.downloadImage(plotDiv, { format: 'png', width: 1200, height: 800 });
-  });
+  // document.getElementById('save-plot').addEventListener('click', function () {
+  //   Plotly.downloadImage(plotDiv, { format: 'png', width: 1200, height: 800 });
+  // });
+
+  // === Communicate with backend python script === 
+  async function sendPointsToBackend() {
+    // Preparation of data  
+    const points = [];
+    for (let i = 0; i < trace1.x.length; i++) {
+      points.push({
+        x: trace1.x[i],
+        y: trace1.y[i],
+        color: trace1.marker.color[i]
+      });
+    }
+
+    // send & obtain responses
+    try {
+      const response = await fetch('http://localhost:5000/process_points', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ points })
+      });
+
+      if (!response.ok) {
+        throw new Error('Server Error');
+      }
+
+      console.log("result retrieved!");
+      const result = await response.json();
+      heatmapData.total.z = result.total;
+      heatmapData.total.x = result.x_range;
+      heatmapData.total.y = result.y_range;
+      
+      heatmapData.aleatoric.z = result.aleatoric;
+      heatmapData.aleatoric.x = result.x_range;
+      heatmapData.aleatoric.y = result.y_range;
+
+      heatmapData.epistemic.z = result.epistemic;
+      heatmapData.epistemic.x = result.x_range;
+      heatmapData.epistemic.y = result.y_range;
+
+      renderHeatmap(currentHeatmapType)
+
+    } catch (error) {
+      console.error('Error with point data handling:', error);
+      alert('Error with point data handling: ' + error.message);
+    }
+  }
+
+  function renderHeatmap(type) {
+    console.log('redering heatmap to:', type);
+    if (!heatmapData[type]) return;
+
+    // Plotly.update('plot', heatmapData[type], [0]);
+    Plotly.deleteTraces('plot', 0); 
+    Plotly.addTraces('plot', heatmapData[type]);
+
+    heatmapData.currentType = type;
+  }
+
 });
