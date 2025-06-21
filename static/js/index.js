@@ -231,52 +231,7 @@ $(document).ready(function () {
   });
 
   // === Click to delete existing point ===
-  Plotly.newPlot('plot', [heatmapData.total, trace1], layout, config).then(plot => {
-    plot.on('plotly_click', function (data) {
-      if (!data.points || data.points.length === 0) return;
-
-      // obtain coord and closest point
-      const xPix = data.event.offsetX;
-      const yPix = data.event.offsetY;
-
-      const xaxis = plotDiv._fullLayout.xaxis;
-      const yaxis = plotDiv._fullLayout.yaxis;
-      const clickX = xaxis.p2c(xPix - xaxis._offset);
-      const clickY = yaxis.p2c(yPix - yaxis._offset);
-
-      let minDistance = Infinity;
-      let closestPointIndex = -1;
-
-      trace1.x.forEach((x, i) => {
-        const y = trace1.y[i];
-        const distance = Math.sqrt(Math.pow(x - clickX, 2) + Math.pow(y - clickY, 2));
-
-        if (distance < minDistance) {
-          minDistance = distance;
-          closestPointIndex = i;
-        }
-      });
-
-      // point deletion
-      const threshold = 0.15
-      if (closestPointIndex !== -1 && minDistance <= threshold) {
-
-        // Animation
-        const newMarker = JSON.parse(JSON.stringify(trace1.marker));
-        newMarker.size[closestPointIndex] = 16;
-        Plotly.restyle(plotDiv, 'marker', [newMarker]);
-
-        setTimeout(() => {
-          trace1.x.splice(closestPointIndex, 1);
-          trace1.y.splice(closestPointIndex, 1);
-          trace1.marker.color.splice(closestPointIndex, 1);
-          trace1.marker.size.splice(closestPointIndex, 1);
-
-          updatePlot();
-        }, 200);
-      }
-    });
-  });
+  Plotly.newPlot('plot', [heatmapData.total, trace1], layout, config).then(plot => { setupPlotlyClickHandler(plot, plotDiv, trace1, updatePlot); });
 
   // TODO: Other functions
   // document.getElementById('reset-btn').addEventListener('click', function () {
@@ -357,8 +312,50 @@ $(document).ready(function () {
     if (!heatmapData[type]) return;
     // both heatmap and points are refreshed to avoid losing point when just alter uncertainty
     // it seems points are refreshed twice but this makes the animation better
-    Plotly.newPlot('plot', [heatmapData[type], trace1], layout, config)
+    Plotly.newPlot('plot', [heatmapData[type], trace1], layout, config).then(plot => { setupPlotlyClickHandler(plot, plotDiv, trace1, updatePlot); })
     heatmapData.currentType = type;
+  }
+
+  function setupPlotlyClickHandler(plot, plotDiv, trace1, updatePlot) {
+    plot.on('plotly_click', function (data) {
+      if (!data.points || data.points.length === 0) return;
+      const xPix = data.event.offsetX;
+      const yPix = data.event.offsetY;
+
+      const xaxis = plotDiv._fullLayout.xaxis;
+      const yaxis = plotDiv._fullLayout.yaxis;
+      const clickX = xaxis.p2c(xPix - xaxis._offset);
+      const clickY = yaxis.p2c(yPix - yaxis._offset);
+
+      let minDistance = Infinity;
+      let closestPointIndex = -1;
+
+      trace1.x.forEach((x, i) => {
+        const y = trace1.y[i];
+        const distance = Math.sqrt(Math.pow(x - clickX, 2) + Math.pow(y - clickY, 2));
+
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestPointIndex = i;
+        }
+      });
+
+      const threshold = 0.15;
+      if (closestPointIndex !== -1 && minDistance <= threshold) {
+        const newMarker = JSON.parse(JSON.stringify(trace1.marker));
+        newMarker.size[closestPointIndex] = 16;
+        Plotly.restyle(plotDiv, 'marker', [newMarker]);
+
+        setTimeout(() => {
+          trace1.x.splice(closestPointIndex, 1);
+          trace1.y.splice(closestPointIndex, 1);
+          trace1.marker.color.splice(closestPointIndex, 1);
+          trace1.marker.size.splice(closestPointIndex, 1);
+
+          updatePlot();
+        }, 200);
+      }
+    });
   }
 
   // === Select to alter uncertainty type ===
