@@ -127,52 +127,44 @@
   </section>
 
 
-  <section class="section hero is-light" style="padding-bottom: 0;"">
-  <div class=" container is-max-desktop">
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
         <h2 class="title is-3">PointColor Binary Classifier Explorer</h2>
-        <div class="content has-text-justified">
-          <p>
-            You can add points of different colors to the plot by dragging
-            the points located below it. As you do this, our uncertainty
-            algorithm runs in the background, calculating the uncertainty
-            value for each position on the plot. Based on these values,
-            the plot is colored to visually represent the uncertainty levels.
-            Additionally, you can switch between three types of heatmaps—"Total,"
-            "Aleatoric," and "Epistemic". Currently displaying:
-            <!-- Button controlling uncertainty types to display -->
-          <div class="field slider-container">
-            <div class="select">
-              <select id="heatmap-type-select">
+        <div class="content has-text-justified" >
+          <span style="line-height: 1.5;">
+            You can add points of different colors to the plot by dragging 
+            the points located below it. As you do this, our uncertainty 
+            algorithm runs in the background, calculating the uncertainty 
+            value for each position on the plot. Based on these values, 
+            the plot is colored to visually represent the uncertainty levels. 
+            Additionally, you can switch between three types of heatmaps—"Total," 
+            "Aleatoric," and "Epistemic". Currently displaying: 
+          </span>
+          <div class="field slider-container is-inline" 
+            style="vertical-align: middle; 
+                margin-left: 4px;
+                display: inline-flex;
+                align-items: center">
+            <div class="select select-tiny">
+              <select id="heatmap-type-select" class="is-small">
                 <option value="total">Total</option>
                 <option value="aleatoric">Aleatoric</option>
                 <option value="epistemic">Epistemic</option>
               </select>
             </div>
           </div>
-          </p>
         </div>
       </div>
     </div>
-    </div>
-  </section>
-
-  <!-- Button controlling uncertainty types to display
-<div class="field slider-container">
-  <div class="select">
-    <select id="heatmap-type-select">
-      <option value="total">Total</option>
-      <option value="aleatoric">Aleatoric</option>
-      <option value="epistemic">Epistemic</option>
-    </select>
   </div>
-</div> -->
+</section>
 
   <!-- Interactive 2D graph -->
   <section class="hero" style="margin-bottom: 0; padding-bottom: 0;">
     <div class="container is-max-desktop">
-      <div class="hero-body" style="margin-bottom: 0; margin-top: 0; padding-top: 0; padding-bottom: 0;">
+      <div class="hero-body" style="margin-bottom: 0; padding-bottom: 0;">
         <div id="plot" style="width:100%; height:600px;"></div>
       </div>
     </div>

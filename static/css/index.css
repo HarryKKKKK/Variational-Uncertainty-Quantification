@@ -141,3 +141,20 @@ body {
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
 }
 
+.field.is-inline,
+.select.is-inline {
+  display: inline-flex !important;
+  vertical-align: middle;
+}
+
+.select-tiny {
+  padding: 0 !important;
+  height: 1.8rem !important;
+  vertical-align: middle !important;
+}
+
+.select-tiny select {
+  font-size: 0.75rem !important;
+  padding: 0.2rem 1.75rem 0.2rem 0.75rem !important;
+  height: 1.8rem !important;
+}

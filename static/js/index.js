@@ -132,10 +132,12 @@ $(document).ready(function () {
 
   const layout = {
     height: 600,
-    margin: { t: 10 },
+    width: '100%',
+    margin: { t: 0, b: 55 },
     xaxis: {
       range: [xmin, xmax],
       fixedrange: true,
+      automargin: true,
       tickvals: allTickValsX,
       ticktext: allTickTextX,
       gridcolor: 'rgba(200, 200, 200, 0.8)',
@@ -147,6 +149,7 @@ $(document).ready(function () {
     yaxis: {
       range: [ymin, ymax],
       fixedrange: true,
+      automargin: true,
       tickvals: allTickValsY,
       ticktext: allTickTextY,
       gridcolor: 'rgba(200, 200, 200, 0.8)',
