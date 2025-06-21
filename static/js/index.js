@@ -51,13 +51,31 @@ $(document).ready(function () {
     hoverinfo: 'none'
   };
 
-  const customColorscale = [
-    [0, 'white'],
-    [0.2, 'rgba(220,230,247,1)'],
-    [0.4, 'rgba(189,215,231,1)'],
-    [0.6, 'rgba(107,174,214,1)'],
-    [0.8, 'rgba(49,130,189,1)'],
-    [1, 'rgba(8,81,156,1)']
+  const totalScale = [
+    [0, 'rgba(230, 247, 255, 1)'],
+    [0.2, 'rgba(166, 213, 245, 1)'],
+    [0.4, 'rgba(101, 179, 232, 1)'],
+    [0.6, 'rgba(57, 148, 219, 1)'],
+    [0.8, 'rgba(17, 112, 185, 1)'],
+    [1, 'rgba(8, 69, 148, 1)']
+  ];
+
+  const aleatoricScale = [
+    [0, 'rgba(255, 247, 230, 1)'],
+    [0.2, 'rgba(255, 227, 166, 1)'],
+    [0.4, 'rgba(255, 204, 101, 1)'],
+    [0.6, 'rgba(255, 180, 57, 1)'],
+    [0.8, 'rgba(255, 157, 17, 1)'],
+    [1, 'rgba(230, 125, 0, 1)']
+  ];
+
+  const epistemicScale = [
+    [0, 'rgba(255, 230, 230, 1)'],
+    [0.2, 'rgba(255, 189, 189, 1)'],
+    [0.4, 'rgba(255, 140, 140, 1)'],
+    [0.6, 'rgba(255, 94, 94, 1)'],
+    [0.8, 'rgba(255, 48, 48, 1)'],
+    [1, 'rgba(204, 0, 0, 1)']
   ];
 
   let heatmapData = {
@@ -66,7 +84,7 @@ $(document).ready(function () {
       x: x,
       y: y,
       type: 'heatmap',
-      colorscale: customColorscale,
+      colorscale: totalScale,
       zmin: 0,
       zmax: 1,
       opacity: 0.6,
@@ -77,7 +95,7 @@ $(document).ready(function () {
       x: x,
       y: y,
       type: 'heatmap',
-      colorscale: customColorscale,
+      colorscale: aleatoricScale,
       zmin: 0,
       zmax: 1,
       opacity: 0.6,
@@ -88,7 +106,7 @@ $(document).ready(function () {
       x: x,
       y: y,
       type: 'heatmap',
-      colorscale: customColorscale,
+      colorscale: epistemicScale,
       zmin: 0,
       zmax: 1,
       opacity: 0.6,
