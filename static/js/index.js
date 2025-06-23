@@ -13,6 +13,8 @@ $(document).ready(function () {
   bulmaCarousel.attach('.carousel', options);
   bulmaSlider.attach();
 
+  // === Helper Functions for plot actions ===
+
   // === Plotly axis and heatmap preparation ===
   const xmin = -4.5;
   const xmax = 4.5;
@@ -33,7 +35,7 @@ $(document).ready(function () {
   for (let i = 0; i < y.length; i++) {
     const row = [];
     for (let j = 0; j < x.length; j++) {
-      row.push(0.5);
+      row.push(0);
     }
     z.push(row);
   }
